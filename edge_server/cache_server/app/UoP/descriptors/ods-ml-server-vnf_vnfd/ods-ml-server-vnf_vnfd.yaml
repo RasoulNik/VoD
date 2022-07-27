@@ -1,0 +1,51 @@
+---
+vnfd:
+  description: ODS ML Server VNF Descriptor #change
+  df:
+  - id: ods-ml-server-df #change
+    instantiation-level:
+    - id: default-instantiation-level
+      vdu-level:
+      - number-of-instances: 1
+        vdu-id: ods-ml-server-vnf-VM #change
+    vdu-profile:
+    - id: ods-ml-server-vnf-VM #change
+      min-number-of-instances: 1
+  ext-cpd:
+  - id: vnf-cp0-ext #keep
+    int-cpd:
+      cpd: eth0-int #keep  but I can change
+      vdu-id: ods-ml-server-vnf-VM #change
+  id: ods-ml-server-vnf  # should be the same in the nsd file
+  mgmt-cp: vnf-cp0-ext   #managment connection point
+  product-name: ods-ml-server-vnf #change
+  provider: CTTC
+  sw-image-desc:
+  - id: ubuntu18-minimal
+    image: ubuntu18-minimal # https://cloud-images.ubuntu.com/minimal/releases/bionic/release/ubuntu-18.04-minimal-cloudimg-amd64.img
+    name: ubuntu18-minimal
+  vdu:
+  - cloud-init-file: server-cloud-init.yaml
+    description: ods-ml-server-vnf-VM  #cahnge
+    id: ods-ml-server-vnf-VM #change but consistent
+    int-cpd:
+    - id: eth0-int # change
+      virtual-network-interface-requirement:
+      - name: eth0
+        virtual-interface:
+          type: PARAVIRT
+    name: ods-ml-server-vnf-VM # change
+    sw-image-desc: ubuntu18-minimal
+    virtual-compute-desc: ods-ml-server-vnf-VM-compute #change
+    virtual-storage-desc:
+    - ods-ml-server-vnf-VM-storage #cahnge
+  version: '1.0'
+  virtual-compute-desc:
+  - id: ods-ml-server-vnf-VM-compute #change
+    virtual-cpu:
+      num-virtual-cpu: 1
+    virtual-memory:
+      size: 1.0
+  virtual-storage-desc:
+  - id: ods-ml-server-vnf-VM-storage
+    size-of-storage: 10

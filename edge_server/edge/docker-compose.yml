@@ -1,0 +1,47 @@
+#version: "3.7"
+#services:
+#  nginx-rtmp-streaming-server:
+##    image: murderousone/nginx-ffmpeg-rtmp:debian-latest
+#    build: .
+#    volumes:
+#      - nginxconfig:/usr/local/nginx/conf/
+#    container_name: m1gc-nginx-rtmp-server
+#    restart: always
+#    stdin_open: true
+##    tty: true
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#      - "1935:1935"
+#
+#volumes:
+#  nginxconfig:
+version: "3.7"
+
+services:
+  nginx_rtmp:
+#    image: alfg/nginx-rtmp
+    build: .
+    container_name: mynginx
+    restart: always
+    volumes:
+#      - ./nginx_rtmp_remote/nginx.conf:/etc/nginx/nginx.conf.template
+      - ~/PycharmProjects/web_server/nginx-rtmp:/videos
+    ports:
+      - "1936:1935"
+      - "1937:1937"
+      - "83:80"
+      - "8081:8080"
+  nginx_remote:
+    #    image: alfg/nginx-rtmp
+    build: .
+    container_name: mynginx_remote
+    restart: always
+    volumes:
+      #      - ./nginx_rtmp_remote/nginx.conf:/etc/nginx/nginx.conf.template
+      - ~/PycharmProjects/web_server/nginx_rtmp_remote:/videos
+    ports:
+#      - "1936:1935"
+#      - "1937:1937"
+      - "84:80"
+#      - "8081:8080"

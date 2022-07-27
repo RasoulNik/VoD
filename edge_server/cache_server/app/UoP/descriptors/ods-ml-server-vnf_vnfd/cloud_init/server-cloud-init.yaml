@@ -1,0 +1,39 @@
+#cloud-config
+ssh_pwauth: yes
+users:
+  - default
+  - name: generic
+    lock_passwd: false
+    sudo: ["ALL=(ALL) NOPASSWD:ALL\nDefaults:generic !requiretty"]
+    passwd: $1$SaltSalt$nQWEtCJCy/mlLI0pj15fd.
+    shell: /bin/bash
+    # ssh_authorized_keys:
+    #   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCnQkNGjGHDB9vkJ1sHQfaPPMZClvIxAdEYu+yenX7x0rWefOkAKSsBmXAZrU5VvVKY395CPZD8nCaCOKIoMsrNYlE/xC1JP5Md+FNTFXswJgS5D7Kf+DJZQwNYUdy/mUU4nyjjQNWN/Lx63Ds3h6RYDEhCHn/yyAuTDOUhjJhG6nJOa0dJ+b5bLdMSLjzhiwpvUeoY/jI+s/mYPrAudQggWuDe/4fCYRlNCfzX7GXgCUGmFXrN00XqtyrhNt/IqxPOZCXpNXRCK0xqAj2o4zUa9ifRCyqQpev/4+OUIROXDWgbFMtbUcanBBuKVkFhfS7Zktdh4J+ZzkP+K0L79Ed5CWVbOvXyaZuxtxj7KXmrzx7hOXjSWM/Nf6OylDrnNZoGyGFxM8MHEqJvByV9VgEvEHSmg3k7587R0OjKoWmBZa4vJh93vPPsD/Gi8hVHUDAy5osmI1qxlLLw6MWG/nFtZT41zJnpJ1Vi5uLuHaEV86HtIVaeCmexjOdcxRgWy38= l_sr@MacBook-Pro.home
+write_files:
+  - content: |
+      version: '3'
+      services:
+        server:
+          image: rasoul5g/drl_cache:latest
+          container_name: server
+          ports:
+            - 5000:5000
+    path: /home/generic/server-compose.yml
+    permissions: 0755
+  - content: |
+      CACHE_COST=15
+      CLOUD_COST=350
+      LRU_WINDOW=5
+      LIBRARY=1e3
+      EDGE_LIBRARY=10
+    path: /home/generic/server.env
+    permissions: 0755
+  - content: |
+      #!/bin/bash
+      apt update; apt install -y docker.io docker-compose;
+      echo "-->Running Docker Compose\n";
+      docker-compose -f /home/generic/server-compose.yml up -d;
+    path: /home/generic/start.sh
+    permissions: 0755
+runcmd:
+- bash -c /home/generic/start.sh

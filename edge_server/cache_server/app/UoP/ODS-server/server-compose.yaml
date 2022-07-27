@@ -1,0 +1,7 @@
+ffversion: '3'
+services:
+  server:
+    image: rasoul5g/drl_cache:latest
+    container_name: server
+    ports:
+      - 5000:5000

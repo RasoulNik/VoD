@@ -1,0 +1,24 @@
+nsd:
+  nsd:
+    - id: ods-ml-server-ns
+      name: ods-ml-server-ns
+      version: '1.0'
+      description: ODS ML Server NS descriptor
+      designer: CTTC
+      vnfd-id:
+        - ods-ml-server-vnf
+      virtual-link-desc:
+        - id: mgmtnet
+          mgmt-network: true
+          vim-network-name: externalNet
+      df:
+      - id: ods-ml-server-df
+        vnf-profile:
+        - id: '1'
+          virtual-link-connectivity:
+          - constituent-cpd-id:
+            - constituent-base-element-id: '1'
+              constituent-cpd-id: vnf-cp0-ext
+            virtual-link-profile-id: mgmtnet
+          vnfd-id: ods-ml-server-vnf
+

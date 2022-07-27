@@ -1,0 +1,38 @@
+version: "3.3"
+services:
+  cache_server:
+    #    image: alfg/nginx-rtmp
+    build: ./cache_server
+    container_name: cache_server
+    hostname: cache_server
+    restart: always
+    environment:
+      - AM_I_IN_A_DOCKER_CONTAINER= 1
+    volumes:
+      - type: bind
+        source: ./edge
+        target: /videos
+    ports:
+      - "81:80"
+  edge:
+    depends_on:
+      - cache_server
+    #    image: alfg/nginx-rtmp
+    build: edge
+    container_name: mynginx
+    restart: always
+    environment:
+      - API_HOST=cache_server
+      - API_PORT=80
+    volumes:
+      - type: bind
+        source: ./edge
+        target: /videos
+    ports:
+      - "80:80"
+      - "881:81"
+      - "882:82"
+networks:
+  default:
+    external:
+      name: external-example

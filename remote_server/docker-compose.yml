@@ -1,0 +1,18 @@
+version: "3.3"
+services:
+  nginx_remote:
+    #    image: alfg/nginx-rtmp
+    build: ./
+    container_name: nginx_remote
+    hostname: nginx_remote
+    restart: always
+    volumes:
+      - type: bind
+        source: ./
+        target: /videos
+    ports:
+      - "82:80"
+networks:
+  default:
+    external:
+      name: external-example
