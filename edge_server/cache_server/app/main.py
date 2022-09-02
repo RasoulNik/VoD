@@ -11,6 +11,9 @@ from utilities.data_structures.Config import Config
 # from agents.DQN_agents.DQN import DQN
 import numpy as np
 import torch
+from flask import Flask, redirect, request, Response
+from requests import get
+# import requests
 
 random.seed(1)
 np.random.seed(1)
@@ -105,21 +108,38 @@ state = agent_trained.environment.get_state()
 # cache_hit_ratio = []
 # LFU_cache_hit_ratio =[]
 def create_playlist_for_cached_files(files):
-    # docker_container = os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False)
-    # print("create a playlist ahas been reached")
-    # if docker_container:
-    #     dir = "/videos/HLS-Stream-Creator/output/"
-    #     print("Wowww I am inside a container ")
-    # else:
-    #     dir = os.getcwd()
-    #     dir = dir+"/utilities/"
-    dir = "/videos/HLS-Stream-Creator/output/"
+    docker_container = os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False)
+    print("create a playlist ahas been reached")
+    if docker_container:
+        dir = "/videos/HLS-Stream-Creator/output/"
+        print("Wowww I am inside a container ")
+    else:
+        dir = os.getcwd()
+        dir = dir+"/utilities/"
+    # dir = "/videos/HLS-Stream-Creator/output/"
     orgin_file = dir+"input.mp4.m3u8"
 
     for i in files:
         dest_file = dir+str(i)+".mp4.m3u8"
         # shutil.copy("/videos/HLS-Stream-Creator/output/input.mp4.m3u8",dest_file)
         shutil.copy(orgin_file, dest_file)
+    return
+def remove_playlist(files):
+    docker_container = os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False)
+    print("create a playlist ahas been reached")
+    if docker_container:
+        dir = "/videos/HLS-Stream-Creator/output/"
+        print("Wowww I am inside a container ")
+    else:
+        dir = os.getcwd()
+        dir = dir+"/utilities/"
+    # dir = "/videos/HLS-Stream-Creator/output/"
+    # orgin_file = dir+"input.mp4.m3u8"
+    for i in files:
+        dest_file = dir+str(i)+".mp4.m3u8"
+        # shutil.copy("/videos/HLS-Stream-Creator/output/input.mp4.m3u8",dest_file)
+        if os.path.isfile(dest_file):
+            os.remove(dest_file)
     return
 def test_caching_with_http_server(agent_trained,observation):
     # game_scores, rolling_scores, time_taken = agent.run_n_episodes()
@@ -166,9 +186,7 @@ def test_caching_with_http_server(agent_trained,observation):
 create_playlist_for_cached_files(state[0:config.cache_dimension].tolist())
 print("HLS playlist has been created from ML state")
 
-from flask import Flask, redirect, request, Response
-from requests import get
-# import requests
+
 # SITE_NAME = "http://nginx_remote:80/"
 # def proxy(path):
 #     global SITE_NAME
@@ -224,13 +242,16 @@ def get_LFU_state():
 @app.route("/update_file/<file_id>")
 def update_file(file_id):
     print(file_id + "has been reached")
-    # if file_id.endswith(".mp4.m3u8"):
-    file_id = file_id[0:-9]
-    test_caching_with_http_server(agent_trained, float(file_id))
-    print(agent_trained.action)
-    if agent_trained.action:
-        create_playlist_for_cached_files([int(file_id)])
-    print("Agent wants to write the video in location "+ str( agent_trained.action))
+    if file_id.endswith(".m3u8"):
+        file_id = file_id[0:-9]
+        test_caching_with_http_server(agent_trained, float(file_id))
+        print(agent_trained.action)
+        state = agent_trained.environment.next_state
+        if agent_trained.action:
+            previous_cached_file = state[agent_trained.action]
+            remove_playlist([int(previous_cached_file)])
+            create_playlist_for_cached_files([int(file_id)])
+        print("Agent wants to write the video in location "+ str( agent_trained.action))
     # url = "remote/"+"<"+file_id+">"
     # SITE_NAME = "http://nginx_remote:80/"
     return {"key":"done"}
